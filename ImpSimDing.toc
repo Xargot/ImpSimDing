@@ -1,0 +1,17 @@
+## Interface: 120005
+## Title: ImpSimDing
+## Notes: Wild Imp timer + Implosion alert
+## Author: Bennie
+## Version: 2.3.2
+## SavedVariables: ImpSimDingDB
+
+Core/Config.lua
+Core/Core.lua
+Core/SpellHandlers.lua
+Core/Events.lua
+
+UI/DebugFrame.lua
+UI/Minimap.lua
+UI/Options.lua
+
+Commands/Slash.lua
