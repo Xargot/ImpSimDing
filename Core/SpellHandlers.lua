@@ -1,69 +1,61 @@
-local addonName, ns = ...
-ns = ImpSimDingNS
+-- Core/SpellHandlers.lua
+local _, ns = ...
+local L = ns.L
+local Utils = ns.Utils or {}
 local A = ns.A
 
--- WoW 12.0 removed COMBAT_LOG_EVENT_UNFILTERED for addons; use unit spell events.
-
-local function canUseNumeric(value)
-    if value == nil then
-        return false
-    end
-    if issecretvalue and issecretvalue(value) then
-        return canaccessvalue and canaccessvalue(value)
-    end
-    return true
+-- Safely get a numeric power value for a unit and power type (kept for compatibility)
+local function SafeUnitPower(unit, powerType)
+    if not unit or not powerType then return 0 end
+    local ok, val = pcall(UnitPower, unit, powerType)
+    if not ok or val == nil then return 0 end
+    return tonumber(val) or 0
 end
 
-local SOUL_SHARD_POWER = Enum.PowerType.SoulShards
-local NPC_HOG = 55659
-local NPC_PASSIVE = 143622
-
-function A:OnSpellCastStart(unit, spellId)
-    if unit ~= "player" or spellId ~= ns.HOG_SPELL_ID then
-        return
-    end
-    A.soulShardsAtCastStart = UnitPower("player", SOUL_SHARD_POWER)
-end
-
+-- Get count of HoG imps using the addon-managed imp list (Midnight-safe)
 local function GetHoGImpCount()
-    local now = UnitPower("player", SOUL_SHARD_POWER)
-    local before = A.soulShardsAtCastStart
-    A.soulShardsAtCastStart = nil
-
-    if before and canUseNumeric(before) and canUseNumeric(now) then
-        local spent = before - now
-        if spent > 0 then
-            return math.max(1, math.min(3, math.floor(spent + 0.001)))
-        end
-    end
-
-    return 3
+    if not A or not A.imps then return 0 end
+    return #A.imps
 end
 
-function A:OnSpellCastSucceeded(unit, spellId)
-    if unit ~= "player" then
-        return
-    end
-
-    if spellId == ns.HOG_SPELL_ID then
-        local count = GetHoGImpCount()
-        for _ = 1, count do
-            A:AddTrackedImp(nil, NPC_HOG)
+-- Robust spell name resolution for Midnight
+local function ResolveSpellName(spellId)
+    if not spellId then return nil end
+    -- Try C_Spell first
+    if C_Spell and C_Spell.GetSpellInfo then
+        local ok, info = pcall(C_Spell.GetSpellInfo, spellId)
+        if ok and info then
+            if type(info) == "table" and info.name then
+                return info.name
+            elseif type(info) == "string" then
+                return info
+            else
+                -- sometimes GetSpellInfo returns multiple values; try first
+                return info
+            end
         end
-        return
     end
-
-    if spellId == ns.IMPLOSION_SPELL_ID then
-        A:ResetAfterImplosion()
-        return
+    -- Fallback to legacy GetSpellInfo
+    if GetSpellInfo then
+        local ok, name = pcall(GetSpellInfo, spellId)
+        if ok then return name end
     end
+    return nil
+end
 
-    if spellId == ns.TYRANT_SPELL_ID then
-        A:ExtendAllImps(ns.TYRANT_EXTENSION)
-        return
-    end
-
-    if spellId == ns.POWER_SIPHON_SPELL_ID then
-        A:RemoveOldestImps(2)
+-- Hardened implosion handler that tolerates missing APIs and nils
+local function HandleImplosion(spellId)
+    if not spellId then return end
+    local name = ResolveSpellName(spellId)
+    if not name then return end
+    if ns.TriggerImplosionPopup and type(ns.TriggerImplosionPopup) == "function" then
+        pcall(ns.TriggerImplosionPopup, name)
     end
 end
+
+-- Expose handlers
+ns.SpellHandlers = ns.SpellHandlers or {}
+ns.SpellHandlers.GetHoGImpCount = GetHoGImpCount
+ns.SpellHandlers.HandleImplosion = HandleImplosion
+
+return ns.SpellHandlers
