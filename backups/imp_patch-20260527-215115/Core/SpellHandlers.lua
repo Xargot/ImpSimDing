@@ -1,4 +1,4 @@
-﻿-- Core/SpellHandlers.lua
+-- Core/SpellHandlers.lua
 local _, ns = ...
 local L = ns.L
 local Utils = ns.Utils or {}

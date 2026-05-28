@@ -316,14 +316,14 @@ function ns.UpdateDebug()
     if nextDeath then
         table.insert(lines, string.format("Next Death: %.1fs", nextDeath))
     else
-        table.insert(lines, "Next Death: —")
+        table.insert(lines, "Next Death: Ã¢â‚¬â€")
     end
 
     table.insert(lines, "")
 
     local impList = BuildImpList(now)
     for i, data in ipairs(impList) do
-        table.insert(lines, string.format("Imp #%d — dies in %.1fs", i, data.remaining))
+        table.insert(lines, string.format("Imp #%d Ã¢â‚¬â€ dies in %.1fs", i, data.remaining))
     end
 
     f.text:SetText(table.concat(lines, "\n"))

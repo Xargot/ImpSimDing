@@ -48,7 +48,7 @@ debugCheck:SetScript("OnClick", function(self)
     if ns.UpdateDebug then ns.UpdateDebug() end
 end)
 
--- Alert sound dropdown (Blizzard Menu API — replaces UIDropDownMenu)
+-- Alert sound dropdown (Blizzard Menu API Ã¢â‚¬â€ replaces UIDropDownMenu)
 local soundLabel = panel:CreateFontString(nil, "ARTWORK", "GameFontNormal")
 soundLabel:SetPoint("TOPLEFT", debugCheck, "BOTTOMLEFT", 4, -20)
 soundLabel:SetText("Alert sound")
