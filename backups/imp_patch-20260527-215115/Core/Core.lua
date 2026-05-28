@@ -1,4 +1,4 @@
--- Core/Core.lua
+﻿-- Core/Core.lua
 local _, ns = ...
 local L = ns.L
 
@@ -17,25 +17,11 @@ end
 function Utils.SafeGetSpellInfo(spellId)
     if not spellId then return nil end
     -- prefer secure C_Spell API when available
-    if C_Spell and C_Spell.GetSpellInfo then
-        local ok, info = pcall(C_Spell.GetSpellInfo, spellId)
-        if ok and info then
-            -- C_Spell.GetSpellInfo may return a table or multiple values; handle both
-            if type(info) == "table" and info.name then
-                return info.name
-            elseif type(info) == "string" then
-                return info
-            else
-                -- if multiple return values, try first
-                return info
-            end
-        end
-    end
-    if GetSpellInfo then
-        local ok, name = pcall(GetSpellInfo, spellId)
-        if ok then return name end
-    end
-    return nil
+    local getter = (C_Spell and C_Spell.GetSpellInfo) or GetSpellInfo
+    if not getter then return nil end
+    local ok, name = pcall(getter, spellId)
+    if not ok then return nil end
+    return name
 end
 
 -- Export utilities

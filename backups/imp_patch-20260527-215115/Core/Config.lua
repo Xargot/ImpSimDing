@@ -16,9 +16,6 @@ ns.TYRANT_SPELL_ID     = 265187
 ns.POWER_SIPHON_SPELL_ID = 264130
 ns.TYRANT_EXTENSION    = 15
 
--- Midnight first spawn delay (explicitly defined)
-ns.FIRST_SPAWN_DELAY = 12.5
-
 ns.MINIMAP_ICON_TEXTURE = "Interface\\AddOns\\ImpSimDing\\Media\\minimap-icon.tga"
 
 ns.SOUND_OPTIONS = {
